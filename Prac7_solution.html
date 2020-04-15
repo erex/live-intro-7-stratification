@@ -448,7 +448,7 @@ summary {
 
 
 <h1 class="title toc-ignore">Introduction to distance sampling</h1>
-<h3 class="subtitle">Workshop, 17-28 February 2020</h3>
+<h3 class="subtitle">Workshop, 04-15 May 2020</h3>
 <h4 class="author">Centre for Research into Ecological and Environmental Modelling <strong>University of St Andrews</strong></h4>
 <h4 class="date">Exercise 7. Analysis of stratified data</h4>
 
@@ -777,8 +777,9 @@ Total
 ##         South     15.14 84.86
 ##         Total      3.94 96.06</code></pre>
 <p>I won’t say anything just now about the wrinkle I introduced with the <code>formula</code> argument in the call to <code>ds()</code>. Recognise there is an alternative (easier) way to perform the full geographic stratification analysis without tearing apart the data. The abundance estimates presented in the last output do not identically match the estimates shown earlier for full geographic stratification, but they are close. The added benefit of this latter analysis is that the uncertainty in the total population size is computed within <code>dht2</code> rather than needing to be calculated manually using the delta method.</p>
-<div id="an-aside-consider-the-design-when-performing-the-analysis" class="section level2">
-<h2><span class="header-section-number">1.1</span> An aside: consider the design when performing the analysis</h2>
+<div class="alert  alert-info">
+<strong>An aside</strong>
+<p>
 <p>If geographic stratification were ignored, the abundance estimate of would be 18,293 minkes. This estimate is substantially larger than the estimates above. The reason is that the survey design was geographically stratified with a smaller proportion of the north stratum receiving sampling effort and a greater proportion of the southern stratum receiving survey effort. Ignoring this inequity in the unstratified analysis would lead us to believe that the more heavily sampled southern stratum is indicative of whale density throughout the study area.</p>
 </div>
 </div>
