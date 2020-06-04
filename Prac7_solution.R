@@ -1,4 +1,4 @@
-## ---- message=FALSE-----------------------------------------------------------------------------------------------
+## ---- message=FALSE-----------------------------------------------------------------------------------
 library(Distance)
 library(kableExtra)
 # Load data
@@ -9,7 +9,7 @@ head(minke, n=3)
 minke.trunc <- 1.5
 
 
-## ---- echo=T, eval=T, message=FALSE-------------------------------------------------------------------------------
+## ---- echo=T, eval=T, message=FALSE-------------------------------------------------------------------
 ## Fit to each region separately - full geographical stratification
 # Create dataset for South
 minke.S <- minke[minke$Region.Label=="South", ]
@@ -23,13 +23,13 @@ minke.df.N.strat <- ds(minke[minke$Region.Label=="North", ],
 summary(minke.df.N.strat)
 
 
-## ---- echo=T, eval=T, message=FALSE-------------------------------------------------------------------------------
+## ---- echo=T, eval=T, message=FALSE-------------------------------------------------------------------
 ## Fit to pooled data
 minke.df.all <- ds(minke, truncation=minke.trunc, key="hr", adjustment=NULL)
 summary(minke.df.all)
 
 
-## ---- echo=F, eval=T----------------------------------------------------------------------------------------------
+## ---- echo=F, eval=T----------------------------------------------------------------------------------
 # Save AIC values
 aic.all <- summary(minke.df.all$ddf)$aic
 aic.S <- summary(minke.df.S.strat$ddf)$aic
@@ -38,7 +38,7 @@ aic.SN <- aic.S + aic.N
 
 
 
-## ---- echo=F------------------------------------------------------------------------------------------------------
+## ---- echo=F------------------------------------------------------------------------------------------
 # Plot detection functions
 par(mfrow=c(2,2))
 plot(minke.df.S.strat, main="South")
@@ -46,7 +46,7 @@ plot(minke.df.N.strat, main="North")
 plot(minke.df.all, main="All")
 
 
-## ---- echo=F------------------------------------------------------------------------------------------------------
+## ---- echo=F------------------------------------------------------------------------------------------
 # Harvest abundance estimates
 est.full <- data.frame(Label=c("North","South","Total"),Estimate=rep(NA,3))
 est.full[1,2] <- minke.df.N.strat$dht$individuals$N$Estimate
@@ -56,17 +56,17 @@ est.full[3,2] <- est.full[1,2] + est.full[2,2]
 est.dfpool <- minke.df.all$dht$individuals$N[ ,c(1,2)]
 
 
-## ---- echo=FALSE--------------------------------------------------------------------------------------------------
+## ---- echo=FALSE--------------------------------------------------------------------------------------
 knitr::kable(est.full, caption="Abundance estimates using full geographical stratification.", digits=0) %>%
   kable_styling(bootstrap_options = "striped", full_width = FALSE)
 
 
-## ---- echo=FALSE--------------------------------------------------------------------------------------------------
+## ---- echo=FALSE--------------------------------------------------------------------------------------
 knitr::kable(est.dfpool, caption="Abundance estimates calculating encounter rate by strata and a pooled detection function.", digits=0) %>%
   kable_styling(bootstrap_options = "striped", full_width = FALSE)
 
 
-## ---- echo=T, eval=T----------------------------------------------------------------------------------------------
+## ---- echo=T, eval=T----------------------------------------------------------------------------------
 # Geographical stratification with stratum-specific detection function 
 strat.specific.detfn <- ds(data=minke, truncation=minke.trunc, key="hr", 
                            adjustment=NULL, formula=~Region.Label)
