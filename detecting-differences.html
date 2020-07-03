@@ -474,12 +474,16 @@ summary {
 </div>
 
 
+<div class="alert alert-success">
+<p><strong>Demonstration</strong> Comparing two density estimates</p>
+</div>
 <div id="estimating-difference-in-density" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Estimating difference in density</h1>
 <p>Perhaps your study intends not only to estimate density in two strata of your study area, as is the case with the minke whale survey in the Southern Ocean; but also to make inference regarding the magnitude of the difference in densities. That inference could take the form of a significance test or inference based upon an estimated difference and its confidence interval.</p>
-<blockquote>
-<p><strong>Aside:</strong> When I use the term <em>stratum</em>, I could be referring to two geographic strata in your study area. More broadly, strata in an analysis could be two different years of surveys of the same study area, or two species within a study area in a single survey. Depending upon how strata are defined, inferences can be made about differences across space, across time, or between species.</p>
-</blockquote>
+<div class="alert alert-info">
+<p><strong>Aside</strong>
+When I use the term <em>stratum</em>, I could be referring to two geographic strata in your study area. More broadly, strata in an analysis could be two different years of surveys of the same study area, or two species within a study area in a single survey. Depending upon how strata are defined, inferences can be made about differences across space, across time, or between species.</p>
+</div>
 <p>I have written a function that computes test statistics and confidence intervals for the difference in estimated densities derived from distance sampling surveys. This function is not part of the <code>Distance</code> package, but is provided in the files associated with Practical 7. As explained in the Appendix below, the nature of the computation depends upon whether the two estimates being compared share a common detection function. As you can imagine, if the estimates share a common detection function, then there is a dependency between the estimates which must be taken into account.</p>
 <p>As an example of the comparison of two density estimates, you can perform the calculations upon the minke whale survey data. Notice I have modified the survey data to add observed size of each minke whale group, such that the data to analyse for the density contrast is a superset of the data you analysed in Practical 7 (all else is the same, I’ve simply added a column <code>size</code> for each detection). Hence, the code snippet below begins by reading the data from a CSV file I also include in your RStudio/Cloud workspace for Practical 7.</p>
 <p>First, detection functions are fitted to the data set. In the same way as in Practical 7, we fit a pooled detection function, the result placed in the object <code>hazard.pooled</code>. We also split the data by <code>Region.Label</code> and fit separate detection functions to each stratum, resulting in two additional fitted objects: <code>ideal.hr</code> and <code>marginal.hr</code>.</p>

@@ -9,11 +9,19 @@ output:
     highlight: tango
 ---
 
+<div class="alert  alert-success">
+  <strong>Demonstration</strong> Comparing two density estimates
+</div>
+
 # Estimating difference in density
 
 Perhaps your study intends not only to estimate density in two strata of your study area, as is the case with the minke whale survey in the Southern Ocean; but also to make inference regarding the magnitude of the difference in densities.  That inference could take the form of a significance test or inference based upon an estimated difference and its confidence interval.
 
-> **Aside:**  When I use the term *stratum*, I could be referring to two geographic strata in your study area.  More broadly, strata in an analysis could be two different years of surveys of the same study area, or two species within a study area in a single survey.  Depending upon how strata are defined, inferences can be made about differences across space, across time, or between species.
+<div class="alert  alert-info">
+  <strong>Aside</strong> 
+  When I use the term *stratum*, I could be referring to two geographic strata in your study area.  More broadly, strata in an analysis could be two different years of surveys of the same study area, or two species within a study area in a single survey.  Depending upon how strata are defined, inferences can be made about differences across space, across time, or between species.
+</div>
+
 
 I have written a function that computes test statistics and confidence intervals for the difference in estimated densities derived from distance sampling surveys.  This function is not part of the `Distance` package, but is provided in the files associated with Practical 7.  As explained in the Appendix below, the nature of the computation depends upon whether the two estimates being compared share a common detection function.  As you can imagine, if the estimates share a common detection function, then there is a dependency between the estimates which must be taken into account.
 
