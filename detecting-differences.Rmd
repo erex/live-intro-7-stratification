@@ -1,8 +1,7 @@
 ---
 title: Introduction to distance sampling
-author: Centre for Research into Ecological and Environmental Modelling  **University of St Andrews**
-subtitle: Workshop, 06-17 July 2020
-date: Exercise 7 supplement. Detecting differences in density estimates.
+author: Centre for Research into Ecological and Environmental Modelling <br> **University of St Andrews**
+date: Exercise 7 supplement. Detecting differences in density estimates. <br>September 2020
 output:
   bookdown::html_document2:
     theme: flatly

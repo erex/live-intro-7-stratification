@@ -1,14 +1,10 @@
 ---
 title: Introduction to distance sampling
-author: Centre for Research into Ecological and Environmental Modelling  **University of St Andrews**
-subtitle: Workshop, 06-17 July 2020
-date: Exercise 7. Analysis of stratified data
+author: Centre for Research into Ecological and Environmental Modelling <br> **University of St Andrews**
+date: Exercise 7. Analysis of stratified data <br> September 2020
 output: 
-  html_document:
-    number_sections: yes
-    theme: flatly
+  rmdformats::readthedown:
     highlight: tango
-    df_print: kable
 ---
 ```{r, include=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message=F, warning=F)
@@ -50,9 +46,7 @@ First, we want to fit encounter rate and detection function separately in each s
 # Create dataset for South 
 minke.S <- minke[minke$Region.Label=="South", ]
 # Fit df to south
-minke.df.S.strat <- ds(minke.S, key="hr", adjustment=NULL, 
-                       truncation=minke.trunc)
-# Print results
+minke.df.S.strat <- ds(minke.S, key="hr", adjustment=NULL, truncation=minke.trunc)
 summary(minke.df.S.strat)
 ```
 
@@ -65,7 +59,6 @@ Also make a note of the abundance in each region. What is the total abundance in
 We want to compare the total AIC found previously with the AIC from fitting a detection function to all data combined. This is easy to obtain:
 
 ```{r, echo=T, eval=F}
-# Fit to pooled data
 minke.df.all <- ds(minke, truncation=minke.trunc, key="hr", adjustment=NULL)
 summary(minke.df.all)
 ```
@@ -79,8 +72,7 @@ The command `summary(minke.df.all)` will provide the abundance estimates for eac
 After fitting a detection function, the `dht2` function, allows abundance estimates to be computed over some specified regions. In the command below, the pooled detection function is used to obtain estimates in each strata and over all (like the `summary` function previously used). 
 
 ```{r, echo=T, eval=F}
-dht2(ddf=minke.df.all, flatfile=minke, strat_formula=~Region.Label,
-     stratification="geographical")
+dht2(ddf=minke.df.all, flatfile=minke, strat_formula=~Region.Label, stratification="geographical")
 ```
 
 The arguments are:
@@ -88,7 +80,8 @@ The arguments are:
 + `ddf` 
   - the detection function (fitted by `ds`)
 + `flatfile` 
-  - the data object containing all the necessary information \footnote{Data  is referred to as being in a 'flatfile' format if it contains information on region, transects and observations. An alternative is to use a hierarchical structure and have region, transect and observation information in separate data files with links between them to ensure that  transects are mapped to the relevant region and observations to the relevant transect.}
+  - the data object containing all the necessary information 
+    - Data is referred to as being in a `flatfile` format if it contains information on region, transects and observations. An alternative is to use a hierarchical structure and have region, transect and observation information in separate data files with links between them to ensure that transects are mapped to the relevant region and observations to the relevant transect.  We've not used the hierarchial structure during this workshop.
 + `strat_formula=~Region.Label` 
   - formula (hence the `~`) giving the stratification structure
 + `stratification="geographical"` 
@@ -96,12 +89,10 @@ The arguments are:
 
 Make a note the total abundance in the study region. 
 
-What happens if we were to ignore the regions and treat the data as though it came from one large study region?  This can be done by changing the stratification formula, as shown below.
+What happens if we were to ignore the regions and treat the data as though it came from one large study region?  This can (**dangerously**) be done by changing the stratification formula, as shown below.
 
 ```{r, echo=T, eval=F}
-dht2(ddf=minke.df.all, flatfile=minke, strat_formula=~1, 
-     stratification="geographical")
+dht2(ddf=minke.df.all, flatfile=minke, strat_formula=~1, stratification="geographical")
 ```
 
-Has this changed the abundance estimate? 
-
+Has this changed the abundance estimate? Of course it has; the question is *why* has this changed the abundance estimate; which estimate is proper?
