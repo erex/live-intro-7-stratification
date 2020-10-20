@@ -1,7 +1,7 @@
 ---
 title: Introduction to distance sampling
 author: Centre for Research into Ecological and Environmental Modelling <br> **University of St Andrews**
-date: Exercise 7 supplement. Detecting differences in density estimates. <br>September 2020
+date: Exercise 7 supplement. Detecting differences in density estimates. <br>November 2020
 output:
   bookdown::html_document2:
     theme: flatly
@@ -20,7 +20,6 @@ Perhaps your study intends not only to estimate density in two strata of your st
   <strong>Aside</strong> 
   When I use the term *stratum*, I could be referring to two geographic strata in your study area.  More broadly, strata in an analysis could be two different years of surveys of the same study area, or two species within a study area in a single survey.  Depending upon how strata are defined, inferences can be made about differences across space, across time, or between species.
 </div>
-
 
 I have written a function that computes test statistics and confidence intervals for the difference in estimated densities derived from distance sampling surveys.  This function is not part of the `Distance` package, but is provided in the files associated with Practical 7.  As explained in the Appendix below, the nature of the computation depends upon whether the two estimates being compared share a common detection function.  As you can imagine, if the estimates share a common detection function, then there is a dependency between the estimates which must be taken into account.
 
