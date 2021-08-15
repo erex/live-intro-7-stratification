@@ -1,7 +1,7 @@
 ---
 title: Exercise 7<br> Analysis of stratified data
 author: Centre for Research into Ecological and Environmental Modelling <br> **University of St Andrews**
-date: Introduction to distance sampling<br> April 2021
+date: Introduction to distance sampling<br> September 2021
 output: 
   rmdformats::readthedown:
     highlight: tango
@@ -81,11 +81,13 @@ The arguments are:
   - the detection function (fitted by `ds`)
 + `flatfile` 
   - the data object containing all the necessary information 
-    - Data is referred to as being in a `flatfile` format if it contains information on region, transects and observations. An alternative is to use a hierarchical structure and have region, transect and observation information in separate data files with links between them to ensure that transects are mapped to the relevant region and observations to the relevant transect.  We've not used the hierarchial structure during this workshop.
+    - Data is referred to as being in a `flatfile` format if it contains information on region, transects and observations. An alternative is to use a hierarchical structure and have region, transect and observation information in separate data files with links between them to ensure that transects are mapped to the relevant region and observations to the relevant transect.  We've not used the hierarchical structure during this workshop.
 + `strat_formula=~Region.Label` 
   - formula (hence the `~`) giving the stratification structure
 + `stratification="geographical"` 
   - in this example, we specify that each strata (specified in `strat_formula`) represents a geographical region. 
++ `convert_units`
+  - getting units conversion correct, same purpose as the `convert.units` argument in `ds`.  For the minke data all measurements are in the same units, so the argument is not needed in this case.
 
 Make a note the total abundance in the study region. 
 

@@ -199,8 +199,8 @@
       </ul>
     </div>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
-                  <p class="author"><span class="glyphicon glyphicon-education"></span> Centre for Research into Ecological and Environmental Modelling <br> <strong>University of St Andrews</strong></p>
-                        <p class="date"><span class="glyphicon glyphicon-leaf"></span> Introduction to distance sampling<br> April 2021</p>
+                  <p class="author"><span class="glyphicon glyphicon-user"></span> Centre for Research into Ecological and Environmental Modelling <br> <strong>University of St Andrews</strong></p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> Introduction to distance sampling<br> September 2021</p>
           </div>
    </div>
      
@@ -244,7 +244,7 @@
 ## Detection function parameters
 ## Scale coefficient(s):  
 ##               estimate        se
-## (Intercept) -0.5102605 0.1921476
+## (Intercept) -0.5102606 0.1921476
 ## 
 ## Shape coefficient(s):  
 ##             estimate        se
@@ -252,7 +252,7 @@
 ## 
 ##                       Estimate          SE        CV
 ## Average p            0.4956472  0.06629151 0.1337474
-## N in covered region 78.6849968 13.81375135 0.1755576
+## N in covered region 78.6849968 13.81375138 0.1755576
 ## 
 ## Summary statistics:
 ##   Region  Area CoveredArea Effort  n  k         ER      se.ER     cv.ER
@@ -280,27 +280,27 @@
 ## Detection function parameters
 ## Scale coefficient(s):  
 ##                estimate        se
-## (Intercept) -0.01081049 0.2203318
+## (Intercept) -0.01081041 0.2203317
 ## 
 ## Shape coefficient(s):  
 ##             estimate        se
-## (Intercept) 1.022021 0.6908073
+## (Intercept) 1.022021 0.6908072
 ## 
 ##                       Estimate         SE        CV
-## Average p            0.7592228 0.09979406 0.1314424
-## N in covered region 64.5396848 9.61423018 0.1489662
+## Average p            0.7592228 0.09979403 0.1314423
+## N in covered region 64.5396823 9.61422729 0.1489661
 ## 
 ## Summary statistics:
 ##   Region   Area CoveredArea  Effort  n  k         ER      se.ER     cv.ER
 ## 1  North 630582     4075.14 1358.38 49 12 0.03607238 0.01317937 0.3653591
 ## 
 ## Abundance:
-##   Label Estimate       se        cv      lcl      ucl       df
-## 1 Total 9986.789 3877.709 0.3882839 4470.104 22311.77 13.97691
+##   Label Estimate       se        cv      lcl      ucl      df
+## 1 Total 9986.789 3877.709 0.3882838 4470.104 22311.77 13.9769
 ## 
 ## Density:
-##   Label   Estimate          se        cv         lcl        ucl       df
-## 1 Total 0.01583742 0.006149413 0.3882839 0.007088855 0.03538283 13.97691</code></pre>
+##   Label   Estimate          se        cv         lcl        ucl      df
+## 1 Total 0.01583741 0.006149412 0.3882838 0.007088855 0.03538283 13.9769</code></pre>
 </div>
 <div id="detections-combined-across-strata" class="section level1">
 <h1>Detections combined across strata</h1>
@@ -321,12 +321,12 @@
 ## (Intercept) -0.2967912 0.176565
 ## 
 ## Shape coefficient(s):  
-##              estimate        se
-## (Intercept) 0.9648331 0.3605099
+##             estimate        se
+## (Intercept) 0.964833 0.3605099
 ## 
 ##                        Estimate          SE        CV
 ## Average p             0.6224451  0.06679541 0.1073113
-## N in covered region 141.3779391 17.77437158 0.1257224
+## N in covered region 141.3779397 17.77437196 0.1257224
 ## 
 ## Summary statistics:
 ##   Region   Area CoveredArea  Effort  n  k         ER      se.ER     cv.ER
@@ -447,7 +447,14 @@ Total
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>abund.by.strata <span class="ot">&lt;-</span> <span class="fu">dht2</span>(<span class="at">ddf=</span>strat.specific.detfn, <span class="at">flatfile=</span>minke, </span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">strat_formula=</span><span class="sc">~</span>Region.Label, <span class="at">stratification=</span><span class="st">&quot;geographical&quot;</span>)</span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(abund.by.strata, <span class="at">report=</span><span class="st">&quot;abundance&quot;</span>)</span></code></pre></div>
-<pre><code>## Summary statistics:
+<pre><code>## Abundance estimates from distance sampling
+## Stratification : geographical 
+## Variance       : R2, n/L 
+## Multipliers    : none 
+## Sample fraction : 1 
+## 
+## 
+## Summary statistics:
 ##  Region.Label   Area CoveredArea  Effort  n  k    ER se.ER cv.ER
 ##         North 630582     4075.14 1358.38 49 12 0.036 0.013 0.365
 ##         South  84734     1453.23  484.41 39 13 0.081 0.018 0.225

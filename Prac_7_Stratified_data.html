@@ -197,8 +197,8 @@
       </ul>
     </div>
     <div id="postamble" data-toggle="wy-nav-shift" class="status">
-                  <p class="author"><span class="glyphicon glyphicon-education"></span> Centre for Research into Ecological and Environmental Modelling <br> <strong>University of St Andrews</strong></p>
-                        <p class="date"><span class="glyphicon glyphicon-leaf"></span> Introduction to distance sampling<br> April 2021</p>
+                  <p class="author"><span class="glyphicon glyphicon-user"></span> Centre for Research into Ecological and Environmental Modelling <br> <strong>University of St Andrews</strong></p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> Introduction to distance sampling<br> September 2021</p>
           </div>
    </div>
      
@@ -263,7 +263,7 @@
 <ul>
 <li>the data object containing all the necessary information
 <ul>
-<li>Data is referred to as being in a <code>flatfile</code> format if it contains information on region, transects and observations. An alternative is to use a hierarchical structure and have region, transect and observation information in separate data files with links between them to ensure that transects are mapped to the relevant region and observations to the relevant transect. We’ve not used the hierarchial structure during this workshop.</li>
+<li>Data is referred to as being in a <code>flatfile</code> format if it contains information on region, transects and observations. An alternative is to use a hierarchical structure and have region, transect and observation information in separate data files with links between them to ensure that transects are mapped to the relevant region and observations to the relevant transect. We’ve not used the hierarchical structure during this workshop.</li>
 </ul></li>
 </ul></li>
 <li><code>strat_formula=~Region.Label</code>
@@ -273,6 +273,10 @@
 <li><code>stratification=&quot;geographical&quot;</code>
 <ul>
 <li>in this example, we specify that each strata (specified in <code>strat_formula</code>) represents a geographical region.</li>
+</ul></li>
+<li><code>convert_units</code>
+<ul>
+<li>getting units conversion correct, same purpose as the <code>convert.units</code> argument in <code>ds</code>. For the minke data all measurements are in the same units, so the argument is not needed in this case.</li>
 </ul></li>
 </ul>
 <p>Make a note the total abundance in the study region.</p>
