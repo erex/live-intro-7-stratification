@@ -7,11 +7,13 @@ library(dsims)
 library(leaflet)
 library(knitr)
 library(sf)
-
+library(here)
 
 ## ----studyarea-----------------------------------------
+
+myshapefilelocation <- here("shapefiles", "StrataPrj.shp")
 northsea <- make.region(region.name = "minkes",
-                      shape = "\\shapefiles\\StrataPrj.shp",
+                      shape = myshapefilelocation, 
                       strata.name = c("South", "North"),
                       units = "km")
 
@@ -20,7 +22,7 @@ northsea <- make.region(region.name = "minkes",
 m <- leaflet() %>% addProviderTiles(providers$Esri.OceanBasemap)
 m <- m %>% 
   setView(1.4, 55.5, zoom=5)
-minkes <- read_sf("\\shapefiles\\StrataPrj.shp")
+minkes <- read_sf(myshapefilelocation)
 study.area.trans <- st_transform(minkes, '+proj=longlat +datum=WGS84')
 m <- addPolygons(m, data=study.area.trans$geometry, weight=2)
 m
