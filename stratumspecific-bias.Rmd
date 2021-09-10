@@ -1,0 +1,374 @@
+---
+title: Bias in stratum-specific abundance estimates
+description: |
+   Brief distance sampling simulation where detection functions differ between strata.  When stratum-specific abundance estimates are produced using a pooled detection function, bias arises.  The magnitude of the bias depends upon the magnitude of the difference in the detection functions.
+author:
+  - name: Eric Rexstad 
+    url: https://distancesampling.org
+    affiliation: Centre for Research into Ecological and Environmental Modelling
+    affiliation_url: https://www.creem.st-andrews.ac.uk/
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+We tell participants in the introductory distance sampling workshop of the perils of estimating stratum-specific densities when using a pooled detection function (Buckland et al. 2015, Sect. 2.3.1).  Therefore, if the purpose of the study is to produce stratum-specific density estimates, sufficient effort must be allocated per stratum to support stratum-specific detection functions. It might be the case that multiple strata share the same detection function, but reliance upon luck for that to occur is not the basis for sound inference.  Sufficient detections should be made in each stratum to assess whether strata share a common detection function.
+
+This simulation study evaluates the magnitude of bias in stratum-specific density estimates when strata differ in the scale parameter of their detection functions.
+
+
+```{r}
+library(dsims)
+library(leaflet)
+library(knitr)
+library(sf)
+```
+
+# Study area
+
+The only interesting feature of the study area used in this simulation is that it possesses two strata.  We could have employed more strata, but demonstration of the phenomenon is sufficient with only two strata.
+
+```{r studyarea}
+northsea <- make.region(region.name = "minkes",
+                      shape = "C:\\Users\\erexs\\Documents\\simulation-strata\\shapefiles\\Strataprj.shp",
+                      strata.name = c("South", "North"),
+                      units = "km")
+```
+
+## North Sea study area
+
+Interest is in estimating the density of minke whales in the western portion of the North Sea, off the east coast of Britain.  The study area is divided into north and south strata, with the north stratum being roughly 1.9 times the size of the south stratum, as shown in the map below.
+
+```{r leafletmap}
+m <- leaflet() %>% addProviderTiles(providers$Esri.OceanBasemap)
+m <- m %>% 
+  setView(1.4, 55.5, zoom=5)
+minkes <- read_sf("C:\\Users\\erexs\\Documents\\simulation-strata\\shapefiles\\Strataprj.shp")
+study.area.trans <- st_transform(minkes, '+proj=longlat +datum=WGS84')
+m <- addPolygons(m, data=study.area.trans$geometry, weight=2)
+m
+```
+
+# Population specification
+
+Population is evenly distributed (density surface is horizontal) and the population size is apportioned to the strata according to the stratum size.  This should result in both strata having the same density.
+
+```{r popspec}
+areas <- northsea@area
+prop.south <- areas[1]/sum(areas)
+prop.north <- areas[2]/sum(areas)
+total.abundance <- 3000
+abund.south <- round(total.abundance * prop.south)
+abund.north <- round(total.abundance * prop.north)
+constant <- make.density(region = northsea, x.space = 10, constant = 1)
+minkepop <- make.population.description(region = northsea,
+                                           density = constant,
+                                           N = c(abund.south, abund.north))
+```
+
+# Survey design
+
+Specifying a single value for the number of samples will distribute the transects among strata proportional to the stratum sizes.  Emphasis of this simulation study is *not* upon the properties of the survey design, therefore a simple systematic parallel line transect survey is created.  Note however, there is large number of replicate transects in each stratum; a well-designed study.  Any bias in the estimated densities cannot be attributed to poor design.
+
+```{r survdesign}
+coverage.grid <- make.coverage(northsea, n.grid.points = 100)
+equal.cover <- make.design(region = northsea,
+                           transect.type = "line",
+                           design = "systematic",
+                           samplers=40, 
+                           design.angle = c(50, 40),
+                           truncation = 0.8,
+                           coverage.grid = coverage.grid)
+```
+
+## Properties of the design
+
+To demonstrate the estimated number of transects in each stratum, the `run.coverage` function is used to show the number of replicates in each stratum is allocated roughly according to stratum size.
+
+```{r designprop}
+design.properties <- run.coverage(equal.cover, reps = 10, quiet=TRUE)
+mine <- data.frame(Num.transects=design.properties@design.statistics$sampler.count[3,],
+                   Proportion.covered=design.properties@design.statistics$p.cov.area[3,])
+kable(mine)
+```
+
+# What analysis to conduct
+
+For purposes of this investigation, we look only at the same key function under which the data were simulated (the half normal) with no covariates.  In effect we are using the "wrong model" to make inference, except in the circumstance when $\Delta = 1$.
+
+A second analysis, `strat.specific.or.not` is constructed to assess model selection performance: the "wrong" model is paired with the "correct" model that assumes stratum-specific detectability.  This contrast will measure the ability of AIC to choose the correct model as the difference between stratum-specific scale parameters ($\Delta$) changes.
+
+```{r whatanalysis}
+pooled.hn <- make.ds.analysis(dfmodel = list(~1),
+                                key = "hn",
+                                criteria = "AIC",
+                                truncation = 0.8)
+strat.specific.or.not <- make.ds.analysis(dfmodel = list(~1, ~Region.Label),
+                                key = "hn",
+                                criteria = "AIC",
+                                truncation = 0.8)
+```
+
+# Heart of the simulation
+
+## Loop over $\Delta$ difference in $\sigma$ between strata
+
+```{r sigma}
+delta.multiplier <- c(seq(from=0.6, to=0.8, by=0.2), 1,
+#                      seq(from=0.85, to=1.15, by=0.1),
+                      seq(from=1.2, to=1.8, by=0.2))
+sigma.south <- 0.5
+north.sigma <- sigma.south*delta.multiplier
+```
+
+Scale parameter ($\sigma$) for the southern stratum remains fixed at `r sigma.south`, but in the northern stratum, the scale parameter is a multiple of the southern stratum $\sigma$, ranging from a low of `r round(min(north.sigma),2)` to a maximum of `r round(max(north.sigma),2)`.
+
+```{r sigmarange}
+hn <- function(sigma, x) {return(exp(-x^2/(2*sigma^2)))}
+for (i in seq_along(north.sigma)) {
+  curve(hn(north.sigma[i],x),from=0,to=0.8,add=i!=1,  
+        xlab="Distance", ylab="Detection probability", 
+        main="Range of detection probability disparity\nSouth function in blue")
+}
+curve(hn(sigma.south,x),from=0,to=0.8, lwd=2, col='blue', add=TRUE)
+```
+
+```{r loopsigma}
+equalcover <- list()
+whichmodel <- list()
+num.sims <- 300
+for (i in seq_along(delta.multiplier)) {
+  sigma.strata <- c(sigma.south, sigma.south*delta.multiplier[i])
+  detect <- make.detectability(key.function = "hn",
+                               scale.param = sigma.strata,
+                               truncation = 0.8)
+  equalcover.sim <- make.simulation(reps = num.sims,
+                                    design = equal.cover,
+                                    population.description = minkepop,
+                                    detectability = detect,
+                                    ds.analysis = pooled.hn)
+  whichmodel.sim <- make.simulation(reps = num.sims,
+                                    design = equal.cover,
+                                    population.description = minkepop,
+                                    detectability = detect,
+                                    ds.analysis = strat.specific.or.not)
+  equalcover[[i]] <- run.simulation(equalcover.sim, run.parallel = TRUE, max.cores=6)
+  whichmodel[[i]] <- run.simulation(whichmodel.sim, run.parallel = TRUE, max.cores=6)
+}
+```
+
+# Simulation findings
+
+Tabular results of simulations iterating over the range of $\Delta$ values for the scale parameters of the two strata.  As $\Delta$ approaches 1, the two detection functions converge, hence using the pooled detection function is appropriate.  When $\Delta>1$ bias again increases, however because for values of $\Delta>>1$, the detection function for the North stratum becomes nearly horizontal. The number of detections in the North stratum is becoming asymptotic. There is little margin for bias to arise in the North density estimate; bulk of bias arises from estimates in the South stratum.
+
+The final column of the table indicates the proportion of replicates for which the stratum-specific detection function is selected using AIC.  The stratum-specific detection function model is the "correct" model when $\Delta \neq 1$.  However the stratum-specific detection function model is selected $\approx$20% of the time when $\Delta \approx 1$. More troubling, the stratum-specific detection function model is selected <50% of the time when $\Delta \neq 1$ implying the "incorrect" model using a pooled detection function is selected >50% of the time, even for large values of $\Delta$.
+
+```{r meaning, echo=FALSE}
+pctbias <- mat.or.vec(length(delta.multiplier),3)
+ci.cover <- mat.or.vec(length(delta.multiplier),3)
+num.detects <- mat.or.vec(length(delta.multiplier),3)
+modelsel <- mat.or.vec(length(delta.multiplier),1)
+bias.modsel <- mat.or.vec(length(delta.multiplier),3)
+cover.modsel <- mat.or.vec(length(delta.multiplier),3)
+for (i in seq_along(delta.multiplier)) {
+  simsum <- summary(equalcover[[i]], description.summary=FALSE)
+  selsum <- summary(whichmodel[[i]], description.summary=FALSE)
+  pctbias[i, ] <- simsum@individuals$D[,3]
+  ci.cover[i, ] <- simsum@individuals$D[,5]
+  num.detects[i, ] <- simsum@individuals$summary[,3]
+  bias.modsel[i, ] <- selsum@individuals$D[,3]
+  cover.modsel[i, ] <- selsum@individuals$D[,5]
+  modelsel[i] <- sum(whichmodel[[i]]@results$Detection[1,5, 1:num.sims]==2) / num.sims
+}
+pooled <- as.data.frame(cbind(pctbias, ci.cover, num.detects, modelsel))
+names(pooled) <- c("Bias.N", "Bias.S", "Bias.Tot",
+                "CICover.N", "CICover.S", "CICover.Tot",
+                "Detects.N", "Detects.S", "Detects.Tot", "Prop.strat.model")
+row.names(pooled) <- delta.multiplier
+kable(pooled, digits=c(rep(1,3), rep(2,3), rep(0,3), 2), 
+      caption="Results using pooled detection function")
+```
+
+When employing model selection to choose between models with pooled detection functions and stratum-specific detection functions, the most worrisome cases of bias arising when $\Delta << 1$ are eliminated.  Bias in stratum-specific density estimates become more pronounced as $\Delta >> 1$.  This is likely caused by poor model selection performance (shown in preceding table) for large values of $\Delta$.  When $\Delta$ is at its maximum, the probability of using the model that produces unbiased stratum-specific estimates is `r round(pooled[nrow(pooled), 10],2)`
+
+```{r selection, echo=FALSE}
+with.selection <- as.data.frame(cbind(bias.modsel, cover.modsel))
+names(with.selection) <- c("Bias.N", "Bias.S", "Bias.Tot",
+                "CICover.N", "CICover.S", "CICover.Tot")
+row.names(with.selection) <- delta.multiplier
+kable(with.selection, digits=c(rep(1,3), rep(2,3)), 
+      caption="Results using chosen model")
+```
+
+## Conclusions from this portion of study
+
+Note bias in the estimated density for the entire study area is never greater than 10%, yet another demonstration of **pooling robustness.**  Even with widely differing detection functions, the estimated density ignoring stratum-specific differences is essentially unbiased.
+
+```{r matplot, echo=FALSE}
+matplot(delta.multiplier, pctbias, type="b", lwd=3, pch=20, xlab="Delta", 
+        ylab="Percent bias", col=1, main="Bias in estimated density")
+legend("bottom", lty=1:3, lwd=3, legend=c("North", "South", "Total"))
+abline(h=0)
+
+matplot(delta.multiplier, ci.cover, type="b", lwd=3, pch=20, xlab="Delta", 
+        ylim=c(0.75,1),
+        ylab="Confidence interval coverage", col=1, main="Confidence interval coverage")
+legend("bottom", lty=1:3, lwd=3, legend=c("North", "South", "Total"))
+abline(h=0.95)
+```
+
+Confidence interval coverage approaches nominal levels when $\Delta \approx 1$.
+
+
+## Model selection sensitivity
+
+This small simulation demonstrates the peril of making stratum-specific estimates when using a detection function that does not recognise stratum-specific detection function differences.  This situation can arise when numbers of stratum-specific detections are too small to support stratum-specific detection functions.  This set of simulations was devised such that there was sufficient effort in each stratum to avoid small numbers of detections.  Even so, use of the "wrong" (pooled) detection function leads to considerable bias in density estimates.
+
+```{r modsel}
+plot(delta.multiplier, modelsel, 
+     main="Stratum-specific model chosen", type="b", pch=20,
+     xlab="Delta", ylab="Stratum covariate chosen")
+abline(h=0.50)
+```
+
+There are two take away messages from this model selection assessment.  In only two instances when the stratum-specific scale parameters differ is there a greater than 50:50 chance that the correct (stratum-specific detection functions) model is chosen.  This is under the scenario when the survey design is superb: adequate number of replicate transects resulting in large numbers (>60) of detections in each stratum.  With a <50% chance of selecting the correct model for inference, the odds favour inferring there is no difference between strata in detection functions, employing the pooled detection function as the basis of inference.  This model produces biased stratum-specific density estimates.  Hence, do not rely upon model selection tools to mitigate the risk of reporting biased estimates.
+
+# Deteriorating quality of survey (and quantity of data)
+
+The entire simulation scenario is repeated below, changing only the number of transects, from 40 to 25 for the entire study area.  This diminished sampling effort will reduce the number of detections in each stratum.  Fewer detections will lead to greater uncertainty about the shape of the stratum-specific detection functions, making differences between strata more difficult to detect.  This should have the effect of increasing the chances of using the (incorrect) pooled detection function model for inference.
+
+```{r poorerdesign, echo=FALSE}
+poorer.design <- make.design(region = northsea,
+                           transect.type = "line",
+                           design = "systematic",
+                           samplers=25, 
+                           design.angle = c(50, 40),
+                           truncation = 0.8,
+                           coverage.grid = coverage.grid)
+poorer.equalcover <- list()
+poorer.whichmodel <- list()
+num.sims <- 300
+for (i in seq_along(delta.multiplier)) {
+  sigma.strata <- c(sigma.south, sigma.south*delta.multiplier[i])
+  detect <- make.detectability(key.function = "hn",
+                               scale.param = sigma.strata,
+                               truncation = 0.8)
+  poorer.equalcover.sim <- make.simulation(reps = num.sims,
+                                    design = poorer.design,
+                                    population.description = minkepop,
+                                    detectability = detect,
+                                    ds.analysis = pooled.hn)
+  poorer.whichmodel.sim <- make.simulation(reps = num.sims,
+                                    design = poorer.design,
+                                    population.description = minkepop,
+                                    detectability = detect,
+                                    ds.analysis = strat.specific.or.not)
+  poorer.equalcover[[i]] <- run.simulation(poorer.equalcover.sim, 
+                                           run.parallel = TRUE, max.cores=6)
+  poorer.whichmodel[[i]] <- run.simulation(poorer.whichmodel.sim, 
+                                           run.parallel = TRUE, max.cores=6)
+}
+
+ppctbias <- mat.or.vec(length(delta.multiplier),3)
+pci.cover <- mat.or.vec(length(delta.multiplier),3)
+pnum.detects <- mat.or.vec(length(delta.multiplier),3)
+pmodelsel <- mat.or.vec(length(delta.multiplier),1)
+pbias.modsel <- mat.or.vec(length(delta.multiplier),3)
+pcover.modsel <- mat.or.vec(length(delta.multiplier),3)
+for (i in seq_along(delta.multiplier)) {
+  simsum <- summary(poorer.equalcover[[i]], description.summary=FALSE)
+  selsum <- summary(poorer.whichmodel[[i]], description.summary=FALSE)
+  ppctbias[i, ] <- simsum@individuals$D[,3]
+  pci.cover[i, ] <- simsum@individuals$D[,5]
+  pnum.detects[i, ] <- simsum@individuals$summary[,3]
+  pbias.modsel[i, ] <- selsum@individuals$D[,3]
+  pcover.modsel[i, ] <- selsum@individuals$D[,5]
+  pmodelsel[i] <- sum(poorer.whichmodel[[i]]@results$Detection[1,5, 1:num.sims]==2) / num.sims
+}
+pooled <- as.data.frame(cbind(ppctbias, pci.cover, pnum.detects, pmodelsel))
+names(pooled) <- c("Bias.N", "Bias.S", "Bias.Tot",
+                "CICover.N", "CICover.S", "CICover.Tot",
+                "Detects.N", "Detects.S", "Detects.Tot", "Prop.strat.model")
+row.names(pooled) <- delta.multiplier
+kable(pooled, digits=c(rep(1,3), rep(2,3), rep(0,3), 2), 
+      caption="Results using pooled detection function with lower sampling intensity")
+```
+
+```{r poorerselection, echo=FALSE}
+pwith.selection <- as.data.frame(cbind(pbias.modsel, pcover.modsel))
+names(pwith.selection) <- c("Bias.N", "Bias.S", "Bias.Tot",
+                "CICover.N", "CICover.S", "CICover.Tot")
+row.names(pwith.selection) <- delta.multiplier
+kable(pwith.selection, digits=c(rep(1,3), rep(2,3)), 
+      caption="Results using chosen model with lower sampling intensity")
+```
+
+```{r poorerplots}
+matplot(delta.multiplier, ppctbias, type="b", lwd=3, pch=20, xlab="Delta", 
+        ylab="Percent bias", col=1, 
+        main="Bias in estimated density\npoorer design")
+legend("bottom", lty=1:3, lwd=3, legend=c("North", "South", "Total"))
+abline(h=0)
+
+matplot(delta.multiplier, pci.cover, type="b", lwd=3, pch=20, xlab="Delta", 
+        ylim=c(0.75,1),
+        ylab="Confidence interval coverage", col=1, 
+        main="Confidence interval coverage\npoorer design")
+legend("bottom", lty=1:3, lwd=3, legend=c("North", "South", "Total"))
+abline(h=0.95)
+plot(delta.multiplier, pmodelsel, 
+     main="Stratum-specific model chosen\npoorer design", type="b", pch=20,
+     xlab="Delta", ylab="Stratum covariate chosen")
+abline(h=0.50)
+```
+
+As predicted, chances of model selection choosing the (correct) stratum-specific detection function model erodes when the number of detections in each stratum diminishes as a result of decreased effort.  Consequently, the chances of reporting biased stratum-specific density estimates are heightened when the survey design degrades from optimal.
+
+## Model selection performance
+
+We rely upon model selection tools to provide objective assistance when choosing the model from which to make inference.  However, these tools should not be used as a recipe: select the model with the smallest AIC, regardless of the magnitude of the difference.  Other factors, such as biological plausibility of the chosen model, should enter into model choice.  However, in this simulation context, the simulation cannot be given biological intuition.  When performing model selection, the simulation simply selects the model with the smallest AIC, regardless of the magnitude of the difference.  There is a grey area when using AIC when $\Delta$AIC < 2.  This set of simulations affords the chance to investigate the distributional properties of $\Delta$AIC when the true model is known.
+
+It stands to reason that the shape of the distribution of $\Delta$AIC should change as truth diverges from the alternative model.  By this I mean, when the multiplier on $\sigma$ is 1, the model with a common detection function for both strata is correct.  As $\sigma$ moves away from 1 (in either direction), the expectation is the distribution of $\Delta$AIC should shift in favour of the model with stratum-specific detection functions.  In the simulated scenario, this stratum-specific detection function is designated with positive values of $\Delta$AIC, while I have manufactured negative values of $\Delta$AIC for replicates in which the common detection function is selected.  I have also highlighted the region of ambiguity where $\Delta$AIC is positive but <2; suggesting support, albeit weak, for the correct model.
+
+Below are panels of $\Delta$AIC distributions for the original (40 transect) scenario as well as the data poor (25 transect) simulation.  The expectation is that distribution of $\Delta$AIC should be less peaked with fewer data; the ability of AIC to choose the correct model is eroded by fewer data.
+
+```{r hissfn, echo=FALSE}
+hiss <- function(nsims, thelist, index, deltmult) {
+  mm <- as.data.frame(t(thelist[[index]]@results$Detection[1,5:6,1:nsims]))
+  mm$DeltaCriteria[mm$SelectedModel==1] <- mm$DeltaCriteria[mm$SelectedModel==1] * -1
+  nonmissing <- sum(!is.na(mm$DeltaCriteria))
+  prop.wrong <- round(sum(mm$DeltaCriteria<0,na.rm=TRUE)/nonmissing,3)
+  prop.ambig <- round(sum(mm$DeltaCriteria>0 & mm$DeltaCriteria<2,na.rm=TRUE)/nonmissing,3)
+  prop.right <- round(sum(mm$DeltaCriteria>2,na.rm=TRUE)/nonmissing,3)
+  hist(mm$DeltaCriteria, main=paste("Delta mult on sigma =", deltmult), 
+       xlab=expression(paste(Delta,"AIC")),
+       sub=paste("strat=", prop.right, "ambig=", prop.ambig, "common=", prop.wrong),
+       nc=15)
+  abline(v=2, lwd=2); abline(v=0, lwd=2)
+}
+```
+
+```{r hissgood, fig.cap="Distribution of deltaAIC with 40 transects in the study area.", layout="l-body-outset", fig.width=6, fig.height=6.5}
+par(mfrow=c(4,2))
+for (i in seq_along(delta.multiplier)) {
+  hiss(num.sims, whichmodel, i, delta.multiplier[i])
+}
+```
+
+```{r hissbad, fig.cap="Distribution of deltaAIC with 25 transects in the study area.",layout="l-body-outset", fig.width=6, fig.height=6.5}
+par(mfrow=c(4,2))
+for (i in seq_along(delta.multiplier)) {
+  hiss(num.sims, poorer.whichmodel, i, delta.multiplier[i])
+}
+```
+
+The challenges of producing stratum-specific density estimates are borne out in this simple simulation study.
+
+# References
+
+Buckland, S.T., Rexstad, E., Marques, T.A. and Oedekoven, C.S. 2015. Distance Sampling: Methods and Applications. Springer.
