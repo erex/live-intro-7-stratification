@@ -11,7 +11,7 @@ library(sf)
 
 ## ----studyarea-----------------------------------------
 northsea <- make.region(region.name = "minkes",
-                      shape = "\\shapefiles\\Strataprj.shp",
+                      shape = "\\shapefiles\\StrataPrj.shp",
                       strata.name = c("South", "North"),
                       units = "km")
 
@@ -20,7 +20,7 @@ northsea <- make.region(region.name = "minkes",
 m <- leaflet() %>% addProviderTiles(providers$Esri.OceanBasemap)
 m <- m %>% 
   setView(1.4, 55.5, zoom=5)
-minkes <- read_sf("\\shapefiles\\Strataprj.shp")
+minkes <- read_sf("\\shapefiles\\StrataPrj.shp")
 study.area.trans <- st_transform(minkes, '+proj=longlat +datum=WGS84')
 m <- addPolygons(m, data=study.area.trans$geometry, weight=2)
 m
