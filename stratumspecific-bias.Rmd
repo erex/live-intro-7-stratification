@@ -35,7 +35,7 @@ The only interesting feature of the study area used in this simulation is that i
 
 ```{r studyarea}
 northsea <- make.region(region.name = "minkes",
-                      shape = "C:\\Users\\erexs\\Documents\\simulation-strata\\shapefiles\\Strataprj.shp",
+                      shape = "\\shapefiles\\Strataprj.shp",
                       strata.name = c("South", "North"),
                       units = "km")
 ```
@@ -48,7 +48,7 @@ Interest is in estimating the density of minke whales in the western portion of 
 m <- leaflet() %>% addProviderTiles(providers$Esri.OceanBasemap)
 m <- m %>% 
   setView(1.4, 55.5, zoom=5)
-minkes <- read_sf("C:\\Users\\erexs\\Documents\\simulation-strata\\shapefiles\\Strataprj.shp")
+minkes <- read_sf("\\shapefiles\\Strataprj.shp")
 study.area.trans <- st_transform(minkes, '+proj=longlat +datum=WGS84')
 m <- addPolygons(m, data=study.area.trans$geometry, weight=2)
 m
