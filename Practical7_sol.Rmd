@@ -1,7 +1,7 @@
 #< ignore
 
 ```{r start}
-setwd("C:/Users/erexs/Documents/RTutor/introwkshp")
+setwd("C:/Users/erexs/Documents/GitHub/live-intro-7-stratification")
 library(RTutor)
 libs <- c("Distance")
 create.ps(sol.file="Practical7_sol.Rmd", ps.name="Practical7", libs = libs,
