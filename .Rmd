@@ -17,7 +17,7 @@ Closely examine the results from this particular analysis, where the strata are 
 
 ```{r eval=FALSE}
 # Run for additional info in the Viewer pane
-info("preknit_txZhysEFklMO")
+info("preknit_bPndQzZLTrZe")
 ```
 
 #### Answer these questions by looking at the above output (duplicated from the practical)
@@ -92,9 +92,9 @@ print(paste("South sigma=", est.sigma.south, "North sigma=", est.sigma.north))
 
 Quiz: Describe the visibility in the northern vs southern strata based upon your interpretation of the calculations you made above.
 
-[1]: larger estimate of sigma in the north implies better visibility in the north
-[2]: larger estimate of sigma in the south suggests better visibility in the south
-[3]: smaller estimate of sigma in the south implies better visibility in the south
+[1]: larger &sigma; in the north implies better visibility in the north
+[2]: larger $\hat{\sigma}$ in the south suggests better visibility in the south
+[3]: smaller $\hat{\sigma}$ in the south implies better visibility in the south
 
 ```{r eval=FALSE}
 # Run line to answer the quiz above
@@ -116,7 +116,7 @@ When only a single argument is passed to the function, it is assumed there are t
 
 ```{r eval=FALSE}
 # Run for additional info in the Viewer pane
-info("preknit_qOGkdEiOzADp")
+info("preknit_acSzSSbGnsbE")
 ```
 
 

@@ -103,9 +103,9 @@ print(paste("South sigma=", est.sigma.south, "North sigma=", est.sigma.north))
 #< quiz "vis"
 question: Describe the visibility in the northern vs southern strata based upon your interpretation of the calculations you made above.
 sc:
-    - larger $\hat{\sigma}$ in the north implies better visibility in the north*
-    - larger $\hat{\sigma}$ in the south suggests better visibility in the south
-    - smaller $\hat{\sigma}$ in the south implies better visibility in the south
+    - larger estimate of sigma in the north implies better visibility in the north*
+    - larger estimate of sigma in the south suggests better visibility in the south
+    - smaller estimate of sigma in the south implies better visibility in the south
 success: Right; weather conditions are worse in the south which is closer to the ice edge.
 failure: Double-check your previous calculations.
 #>
@@ -121,9 +121,11 @@ The challenge is to estimate the variance of the  difference in estimated densit
 
 When only a single argument is passed to the function, it is assumed there are two strata and they share a common detection function. When the function has two arguments, it operates as if the objects came from two separate analyses, meaning the two estimates came from different detection functions and the estimates are therefore independent.
 
+**Pay no attention to the error message produced below, tutorial is still intact**
+
 #< preknit
 
-```{r echo=FALSE, message=FALSE, error=FALSE}
+```{r echo=FALSE, message=FALSE, error=FALSE, warning=FALSE}
 whales <- read.csv("C:/Users/erexs/Documents/GitHub/live-intro-7-stratification/stratify_examp.csv")
 hazard.pooled <- ds(data=whales, key="hr", truncation = 1.5)
 ideal.hr <- ds(data=whales[whales$Region.Label=="Ideal",], key="hr", truncation=1.5)
